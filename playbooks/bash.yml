@@ -1,0 +1,10 @@
+- name: set bash configuration on remote ubuntu
+  hosts: "ubuntu"
+  become: false
+  tasks:
+    - name: copy over the bashrc config
+      template: src=../templates/shell/.bashrc dest=/home/user/.bashrc
+
+    - name: copy over the common config
+      template: src=../templates/shell/.common.sh dest=/home/user/.common.sh
+

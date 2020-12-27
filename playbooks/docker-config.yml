@@ -1,0 +1,44 @@
+- name: install and update docker with proper socket configuration.
+  hosts: "ubuntu"
+  become: true
+
+  tasks:
+    - name: install aptitude using apt
+      apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+    - name: install required system packages
+      apt: name={{ item }} state=latest update_cache=yes
+      loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools']
+
+    - name: add docker GPG apt key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: add docker repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: update apt and install docker-ce
+      apt: update_cache=yes name=docker-ce state=latest
+
+    - name: stop docker service, if running
+      systemd:
+        name: docker
+        state: stopped
+
+    - name: copy over the docker daemon config
+      template: src=../templates/docker/daemon.json dest=/etc/docker/daemon.json
+
+    - name: copy over the systemd docker daemon config
+      template: src=../templates/docker/docker.service dest=/usr/lib/systemd/system/docker.service
+
+    - name: force systemd to reread configs (2.4 and above)
+      systemd:
+        daemon_reload: yes
+
+    - name: make sure docker service is running
+      systemd:
+        name: docker
+        state: started

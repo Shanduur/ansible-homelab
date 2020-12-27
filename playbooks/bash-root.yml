@@ -1,0 +1,9 @@
+- name: set bash configuration on remote proxmox
+  hosts: "*"
+  become: false
+  tasks:
+    - name: copy over the bashrc config
+      template: src=../templates/shell/.bashrc dest=/root/.bashrc
+
+    - name: copy over the common config
+      template: src=../templates/shell/.common.sh dest=/root/.common.sh
