@@ -43,3 +43,6 @@
       systemd:
         name: docker
         state: started
+
+    - name: enable buildx in docker
+      ansible.builtin.command: docker buildx create --use
