@@ -21,7 +21,8 @@
         state: present
 
     - name: update apt and install docker-ce
-      apt: update_cache=yes name=docker-ce state=latest
+      apt: name={{ item }} update_cache=yes state=latest
+      loop: [ 'docker-ce', 'docker-compose' ]
 
     - name: stop docker service, if running
       systemd:
