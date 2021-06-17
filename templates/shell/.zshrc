@@ -50,6 +50,11 @@ plugins=(ansible docker docker-compose git golang kubectl pip python vscode)
 
 source $ZSH/oh-my-zsh.sh
 
+bindkey "^[^[[C" forward-word
+bindkey "^[^[[D" backward-word
+bindkey '5~' kill-word
+bindkey '^H' backward-kill-word
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
