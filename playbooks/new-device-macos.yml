@@ -1,0 +1,71 @@
+- name: set up new device using ansible
+  hosts: "local-macos"
+  become: "true"
+
+  tasks:
+    - name: install git and other xcode tools
+      ansible.builtin.shell:
+        cmd: xcode-select --install
+
+    - name: install homebrew
+      ansible.builtin.shell:
+        cmd: curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
+        executable: /bin/bash
+
+    - name: install newer version of python
+      community.general.homebrew:
+        name: python@3.8 python@3.9
+        state: latest
+        update_homebrew: yes
+        upgrade_all: yes
+
+    - name: install visual studio code
+      community.general.homebrew_cask:
+        name: visual-studio-code
+        state: latest
+
+    - name: install iterm2
+      community.general.homebrew_cask:
+        name: iterm2
+        state: latest
+
+    - name: install docker
+      community.general.homebrew_cask:
+        name: docker
+        state: latest
+
+    - name: install oh-my-zsh
+      ansible.builtin.shell:
+        cmd: curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+        executable: /bin/sh
+        stdin: |
+          y
+
+    - name: get zsh powerlevel-10k
+      ansible.builtin.shell:
+        cmd: git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+        executable: /bin/zsh
+
+    - name: copy .zshrc to the host
+      template: src=../templates/.zshrc dest=~/.zshrc
+
+    - name: copy p10k config to the host
+      template: src=../templates/.p10k.zsh dest=~/.p10k.zsh
+
+    - name: install g go version manager
+      ansible.builtin.shell:
+        cmd: curl -sSL https://git.io/g-install | sh -s
+        stdin: |
+          y
+          y
+
+    - name: create a bin directory in user home folder if it does not exist
+      ansible.builtin.file:
+        path: ~/.local/bin/
+        state: directory
+        mode: '0755'
+
+    - name: install kubectl
+      ansible.builtin.shell:
+        cmd: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/darwin/arm64/kubectl"
+        chdir: ~/.local/bin/
